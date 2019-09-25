@@ -1,6 +1,6 @@
-// Package logfilerotater provides log file rotating functionality in Go with io.Writer interface which make it very easy to integrate with other Go packages.
-// logfilerotater 是一个具有日志文件切割功能的 io.Writer 接口实现，非常容易与其他Go模块集成。
-package logfilerotater
+// Package logfilerotator provides log file rotating functionality in Go with io.Writer interface which make it very easy to integrate with other Go packages.
+// logfilerotator 是一个具有日志文件切割功能的 io.Writer 接口实现，非常容易与其他Go模块集成。
+package logfilerotator
 
 import (
 	"log"
@@ -29,8 +29,8 @@ const (
 	RotateStrategyNone RotateStrategy = "none"
 )
 
-// LogFileRotater 日志文件Writer
-type LogFileRotater struct {
+// LogFileRotator 日志文件Writer
+type LogFileRotator struct {
 	logPath            string // 日志文件基准路径
 	rotate             RotateStrategy
 	createdOrRotatedAt time.Time // 创建时刻或最近一次切割时刻
@@ -39,8 +39,8 @@ type LogFileRotater struct {
 	lock               *sync.RWMutex
 }
 
-// New 创建一个 LogFileRotater
-func New(logPath string, rotate RotateStrategy) *LogFileRotater {
+// New 创建一个 LogFileRotator
+func New(logPath string, rotate RotateStrategy) *LogFileRotator {
 	if !(rotate == RotateStrategyHour ||
 		rotate == RotateStrategyDay ||
 		rotate == RotateStrategyHourFile ||
@@ -50,7 +50,7 @@ func New(logPath string, rotate RotateStrategy) *LogFileRotater {
 		rotate = RotateStrategyHourFile
 	}
 
-	rotater := &LogFileRotater{
+	rotater := &LogFileRotator{
 		logPath:            logPath,
 		rotate:             rotate,
 		createdOrRotatedAt: time.Time{},
@@ -87,9 +87,9 @@ func New(logPath string, rotate RotateStrategy) *LogFileRotater {
 	return rotater
 }
 
-// NewStderr 创建一个输出到 os.Stderr 的 LogFileRotater
-func NewStderr() *LogFileRotater {
-	return &LogFileRotater{
+// NewStderr 创建一个输出到 os.Stderr 的 LogFileRotator
+func NewStderr() *LogFileRotator {
+	return &LogFileRotator{
 		logPath:            "/dev/null",
 		rotate:             RotateStrategyNone,
 		createdOrRotatedAt: time.Time{},
@@ -100,7 +100,7 @@ func NewStderr() *LogFileRotater {
 }
 
 // Write 实现 io.Writer 接口，带日志切割功能
-func (r *LogFileRotater) Write(b []byte) (int, error) {
+func (r *LogFileRotator) Write(b []byte) (int, error) {
 	// 若不切割日志，则直接写入，无需加锁
 	if r.rotate == RotateStrategyNone {
 		return r.fp.Write(b)
