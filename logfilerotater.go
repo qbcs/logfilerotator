@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"storage/image/util"
 	"strconv"
 	"sync"
 	"syscall"
@@ -65,7 +64,7 @@ func New(logPath string, rotate RotateStrategy) *LogFileRotater {
 
 	realLogPath := getRealLogPath(logPath, rotate, rotater.createdOrRotatedAt)
 
-	if !util.FileExists(realLogPath) {
+	if !fileExists(realLogPath) {
 		logDir := path.Dir(realLogPath)
 		if e := os.MkdirAll(logDir, os.ModeDir|0755); e != nil {
 			log.Println("[ERROR] Log path mkdir fail:", e, ". Stderr will be used. log dir:", logDir)
@@ -135,7 +134,7 @@ func (r *LogFileRotater) Write(b []byte) (int, error) {
 			backupLogPath = getRealLogPath(r.logPath, RotateStrategyDayFile, r.createdOrRotatedAt)
 		}
 
-		if util.FileExists(backupLogPath) {
+		if fileExists(backupLogPath) {
 			backupLogPath = backupLogPath + "." + strconv.FormatInt(time.Now().UnixNano(), 10)
 		}
 		if e := os.Rename(r.logPath, backupLogPath); e != nil {
@@ -187,4 +186,9 @@ func getRealLogPath(logPath string, rotate RotateStrategy, tm time.Time) string 
 		return logPath + "." + tm.Format("20060102")
 	}
 	return logPath
+}
+
+func fileExists(path string) bool {
+	fileinfo, err := os.Stat(path)
+	return err == nil && fileinfo.Mode().IsRegular()
 }
